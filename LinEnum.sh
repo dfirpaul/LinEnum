@@ -3,16 +3,29 @@
 #version 0.1
 #@oshearing
 
+#Get OS type and store it in a var
+flavour=`lsb_release -si`
+# Prettiness...
+line="\e[1;31m=============================\e[00m"
+
 echo -e "\n\e[00;30m#########################################################\e[00m"
 echo -e "\e[00;34mLocal Linux Enumeration & Privilege Escalation Script\e[00m"
 echo -e "\e[00;30m#########################################################\e[00m"
 echo -e "\e[00;30m# www.rebootuser.com\e[00m"
 echo -e "\e[00;30m# version 0.1\e[00m\n"
 
-#enter a single keyword that'll be used to search within *.conf and *.log files.
-echo "Enter a keyword that'll be used to search in .conf & .log files (i.e. password)"
-read keyword
-echo -e "\n"
+echo -e "\e[00;30m# [DEBUG] Linux Flavour: $flavour\e[00m\n" # DEBUG
+
+
+if [ $# -eq 1 ]
+then
+	keyword=$1
+else
+	#enter a single keyword that'll be used to search within *.conf and *.log files.
+	echo "Enter a keyword that'll be used to search in .conf & .log files (i.e. password)"
+	read keyword
+	echo -e "\n"
+fi
 
 echo -e "\e[00;34m### SYSTEM ##############################################\e[00m"
 
@@ -48,6 +61,23 @@ if [ "$hostnamed" ]; then
 else 
   :
 fi
+
+#### This is kind of experimental, could do with improving... ####
+
+echo -e "\e[00;34m### OUTDATED PACKAGES ##############################################\e[00m"
+if [[ $flavour = "Ubuntu" || $flavour = "Debian" ]]
+then
+       apt-get update 1>/dev/null && apt-get dist-upgrade -s
+#       apt-get update 1>/dev/null && apt-get --just-print dist-upgrade 2>&1 | perl -ne 'if (/Inst\s([\w,\-,\d,\.,~,:,\+]+)\s\[([\w,\-,\d,\.,~,:,\+]+)\]\s\(([\w,\-,\d,\.,~,:,\+]+)\)? /i) {print "PACKAGE: $1 INSTALLED: $2 AVAILABLE: $3\n$
+       echo
+elif [[ $flavour = "OracleServer" ]]
+then
+	yum list updates
+else
+        echo "[!] Unhandled flavour"
+        echo
+fi
+
 
 echo -e "\e[00;34m### USER/GROUP ##########################################\e[00m"
 
